@@ -1,9 +1,0 @@
-services:
-  editor:
-    build: ./editor
-    ports:
-      - "8080:5000"
-    volumes:
-      - ${SAVE_DIR:-/home/iant/.local/share/Steam/steamapps/compatdata/3438850/pfx/drive_c/users/steamuser/AppData/LocalLow/The Sledding Corporation/Sledding Game}:/saves
-    environment:
-      - SAVE_DIR=/saves
