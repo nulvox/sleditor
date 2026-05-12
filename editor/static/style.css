@@ -1,0 +1,331 @@
+:root {
+    --bg: #0f1923;
+    --surface: #1a2733;
+    --surface2: #243444;
+    --border: #2d4050;
+    --text: #e0e8f0;
+    --text-dim: #8899aa;
+    --accent: #4fc3f7;
+    --accent-hover: #29b6f6;
+    --success: #66bb6a;
+    --danger: #ef5350;
+    --snow: #b3e5fc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #0d253f 100%);
+    padding: 1.5em 2em;
+    border-bottom: 2px solid var(--accent);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1.8em;
+    color: var(--snow);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.subtitle {
+    color: var(--text-dim);
+    margin-top: 0.3em;
+    font-size: 0.9em;
+}
+
+.toolbar {
+    display: flex;
+    gap: 0.8em;
+    padding: 1em 2em;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+button {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.5em 1.2em;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.15s;
+}
+
+button:hover {
+    background: var(--border);
+    border-color: var(--accent);
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+button.primary {
+    background: var(--accent);
+    color: #0a1a2a;
+    border-color: var(--accent);
+    font-weight: 600;
+}
+
+button.primary:hover {
+    background: var(--accent-hover);
+}
+
+button.primary:disabled {
+    background: var(--surface2);
+    color: var(--text-dim);
+    border-color: var(--border);
+}
+
+.file-upload {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.5em 1.2em;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.15s;
+}
+
+.file-upload:hover {
+    background: var(--border);
+    border-color: var(--accent);
+}
+
+.file-upload input[type="file"] {
+    display: none;
+}
+
+#status-msg {
+    margin-left: auto;
+    font-size: 0.85em;
+    color: var(--text-dim);
+}
+
+#status-msg.ok { color: var(--success); }
+#status-msg.err { color: var(--danger); }
+
+#app {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5em;
+}
+
+.tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 1.5em;
+    border-bottom: 2px solid var(--border);
+}
+
+.tab {
+    border: none;
+    border-radius: 6px 6px 0 0;
+    padding: 0.7em 1.5em;
+    background: transparent;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+.tab:hover {
+    color: var(--text);
+    background: var(--surface);
+}
+
+.tab.active {
+    background: var(--surface);
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: -2px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2em 1.5em;
+    margin-bottom: 1em;
+}
+
+.card h2 {
+    font-size: 1.05em;
+    color: var(--snow);
+    margin-bottom: 0.8em;
+    padding-bottom: 0.4em;
+    border-bottom: 1px solid var(--border);
+}
+
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1em;
+}
+
+.field label {
+    display: block;
+    font-size: 0.82em;
+    color: var(--text-dim);
+    margin-bottom: 0.3em;
+    font-weight: 500;
+}
+
+.field small {
+    font-size: 0.75em;
+    color: var(--text-dim);
+}
+
+.field input[type="number"],
+.field input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.45em 0.7em;
+    border-radius: 4px;
+    font-size: 0.95em;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.15);
+}
+
+.field input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+}
+
+.range-val {
+    font-size: 0.8em;
+    color: var(--accent);
+    font-family: monospace;
+}
+
+.checkbox-field label {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: var(--text);
+}
+
+.checkbox-field input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+}
+
+textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.8em;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.85em;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.item-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    padding: 0.5em 0.8em;
+    background: var(--bg);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    font-size: 0.9em;
+}
+
+.item-row .item-label {
+    min-width: 80px;
+    color: var(--text-dim);
+    font-size: 0.85em;
+}
+
+.item-row input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+}
+
+.item-row input[type="number"] {
+    width: 80px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.25em 0.5em;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.item-row .purchased-label {
+    color: var(--success);
+    font-weight: 500;
+    font-size: 0.85em;
+}
+
+.item-row .not-purchased-label {
+    color: var(--text-dim);
+    font-size: 0.85em;
+}
+
+.add-btn {
+    margin-top: 0.5em;
+    border-style: dashed;
+    color: var(--text-dim);
+}
+
+.add-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+@media (max-width: 600px) {
+    .field-grid {
+        grid-template-columns: 1fr;
+    }
+    .toolbar {
+        padding: 0.8em 1em;
+    }
+    #app {
+        padding: 1em;
+    }
+}
