@@ -62,15 +62,8 @@ button {
     transition: all 0.15s;
 }
 
-button:hover {
-    background: var(--border);
-    border-color: var(--accent);
-}
-
-button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
+button:hover { background: var(--border); border-color: var(--accent); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 button.primary {
     background: var(--accent);
@@ -79,15 +72,8 @@ button.primary {
     font-weight: 600;
 }
 
-button.primary:hover {
-    background: var(--accent-hover);
-}
-
-button.primary:disabled {
-    background: var(--surface2);
-    color: var(--text-dim);
-    border-color: var(--border);
-}
+button.primary:hover { background: var(--accent-hover); }
+button.primary:disabled { background: var(--surface2); color: var(--text-dim); border-color: var(--border); }
 
 .file-upload {
     background: var(--surface2);
@@ -100,14 +86,8 @@ button.primary:disabled {
     transition: all 0.15s;
 }
 
-.file-upload:hover {
-    background: var(--border);
-    border-color: var(--accent);
-}
-
-.file-upload input[type="file"] {
-    display: none;
-}
+.file-upload:hover { background: var(--border); border-color: var(--accent); }
+.file-upload input[type="file"] { display: none; }
 
 #status-msg {
     margin-left: auto;
@@ -140,10 +120,7 @@ button.primary:disabled {
     font-weight: 500;
 }
 
-.tab:hover {
-    color: var(--text);
-    background: var(--surface);
-}
+.tab:hover { color: var(--text); background: var(--surface); }
 
 .tab.active {
     background: var(--surface);
@@ -152,13 +129,8 @@ button.primary:disabled {
     margin-bottom: -2px;
 }
 
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
 .card {
     background: var(--surface);
@@ -190,10 +162,7 @@ button.primary:disabled {
     font-weight: 500;
 }
 
-.field small {
-    font-size: 0.75em;
-    color: var(--text-dim);
-}
+.field small { font-size: 0.75em; color: var(--text-dim); }
 
 .field input[type="number"],
 .field input[type="text"] {
@@ -213,16 +182,8 @@ button.primary:disabled {
     box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.15);
 }
 
-.field input[type="range"] {
-    width: 100%;
-    accent-color: var(--accent);
-}
-
-.range-val {
-    font-size: 0.8em;
-    color: var(--accent);
-    font-family: monospace;
-}
+.field input[type="range"] { width: 100%; accent-color: var(--accent); }
+.range-val { font-size: 0.8em; color: var(--accent); font-family: monospace; }
 
 .checkbox-field label {
     display: flex;
@@ -233,11 +194,7 @@ button.primary:disabled {
     color: var(--text);
 }
 
-.checkbox-field input[type="checkbox"] {
-    accent-color: var(--accent);
-    width: 16px;
-    height: 16px;
-}
+.checkbox-field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 
 textarea {
     width: 100%;
@@ -252,16 +209,9 @@ textarea {
     line-height: 1.5;
 }
 
-textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-}
+textarea:focus { outline: none; border-color: var(--accent); }
 
-.item-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-}
+.item-list { display: flex; flex-direction: column; gap: 0.5em; }
 
 .item-row {
     display: flex;
@@ -274,17 +224,8 @@ textarea:focus {
     font-size: 0.9em;
 }
 
-.item-row .item-label {
-    min-width: 80px;
-    color: var(--text-dim);
-    font-size: 0.85em;
-}
-
-.item-row input[type="checkbox"] {
-    accent-color: var(--accent);
-    width: 16px;
-    height: 16px;
-}
+.item-row .item-label { min-width: 80px; color: var(--text-dim); font-size: 0.85em; }
+.item-row input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 
 .item-row input[type="number"] {
     width: 80px;
@@ -296,36 +237,73 @@ textarea:focus {
     font-family: monospace;
 }
 
-.item-row .purchased-label {
-    color: var(--success);
-    font-weight: 500;
-    font-size: 0.85em;
-}
-
-.item-row .not-purchased-label {
+.item-row code {
+    font-size: 0.8em;
     color: var(--text-dim);
-    font-size: 0.85em;
+    word-break: break-all;
 }
 
-.add-btn {
-    margin-top: 0.5em;
-    border-style: dashed;
+.item-row .purchased-label { color: var(--success); font-weight: 500; font-size: 0.85em; }
+.item-row .not-purchased-label { color: var(--text-dim); font-size: 0.85em; }
+
+.add-btn { margin-top: 0.5em; border-style: dashed; color: var(--text-dim); }
+.add-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Drop zone overlay */
+#drop-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(15, 25, 35, 0.92);
+    align-items: center;
+    justify-content: center;
+}
+
+#drop-overlay.active {
+    display: flex;
+}
+
+#drop-overlay .drop-message {
+    border: 3px dashed var(--accent);
+    border-radius: 16px;
+    padding: 3em 5em;
+    text-align: center;
+    color: var(--snow);
+    font-size: 1.3em;
+}
+
+/* Welcome / no-data card */
+#no-data {
+    text-align: center;
+    padding: 3em;
+}
+
+#no-data .drop-hint {
+    margin-top: 1.5em;
+    padding: 2em;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
     color: var(--text-dim);
 }
 
-.add-btn:hover {
-    color: var(--accent);
-    border-color: var(--accent);
+#no-data .save-path {
+    margin-top: 1em;
+    font-size: 0.8em;
+    color: var(--text-dim);
+    word-break: break-all;
+}
+
+#no-data .save-path code {
+    background: var(--bg);
+    padding: 0.3em 0.6em;
+    border-radius: 4px;
+    font-size: 0.95em;
 }
 
 @media (max-width: 600px) {
-    .field-grid {
-        grid-template-columns: 1fr;
-    }
-    .toolbar {
-        padding: 0.8em 1em;
-    }
-    #app {
-        padding: 1em;
-    }
+    .field-grid { grid-template-columns: 1fr; }
+    .toolbar { padding: 0.8em 1em; }
+    #app { padding: 1em; }
+    #drop-overlay .drop-message { padding: 2em; font-size: 1em; }
 }
