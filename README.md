@@ -1,4 +1,4 @@
-# Sledding Game Save Editor
+# Sleditor
 
 A browser-based save editor for [Sledding Game](https://store.steampowered.com/app/3438850/Sledding_Game/) (Steam).
 
