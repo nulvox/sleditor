@@ -95,6 +95,29 @@ button.primary:disabled { background: var(--surface2); color: var(--text-dim); b
     color: var(--text-dim);
 }
 
+.sponsor-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    background: transparent;
+    color: #db61a2;
+    border: 1px solid #db61a2;
+    padding: 0.5em 1.2em;
+    border-radius: 6px;
+    font-size: 0.9em;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+.sponsor-btn::before {
+    content: "\2665";
+}
+
+.sponsor-btn:hover {
+    background: #db61a2;
+    color: #fff;
+}
+
 #status-msg.ok { color: var(--success); }
 #status-msg.err { color: var(--danger); }
 
