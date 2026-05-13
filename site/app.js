@@ -302,15 +302,29 @@ function uploadFiles(input) {
     input.value = '';
 }
 
+function backupName(filename) {
+    const dot = filename.lastIndexOf('.');
+    if (dot === -1) return filename + '_BACKUP';
+    return filename.slice(0, dot) + '_BACKUP' + filename.slice(dot);
+}
+
 async function downloadFile(which) {
     try {
         if (which === 'stats' && saveData.stats) {
             await doDownload(saveData.stats, loadedFilenames.stats);
+            await doDownload(saveData.stats, backupName(loadedFilenames.stats));
         } else if (which === 'settings' && saveData.settings) {
             await doDownload(saveData.settings, loadedFilenames.settings);
+            await doDownload(saveData.settings, backupName(loadedFilenames.settings));
         } else {
-            if (saveData.stats) await doDownload(saveData.stats, loadedFilenames.stats);
-            if (saveData.settings) await doDownload(saveData.settings, loadedFilenames.settings);
+            if (saveData.stats) {
+                await doDownload(saveData.stats, loadedFilenames.stats);
+                await doDownload(saveData.stats, backupName(loadedFilenames.stats));
+            }
+            if (saveData.settings) {
+                await doDownload(saveData.settings, loadedFilenames.settings);
+                await doDownload(saveData.settings, backupName(loadedFilenames.settings));
+            }
         }
     } catch (e) {
         setStatus('Download failed: ' + e.message, 'err');
