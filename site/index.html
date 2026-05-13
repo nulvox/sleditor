@@ -20,9 +20,9 @@
     <div class="toolbar">
         <label class="file-upload">
             Open Save File(s)
-            <input type="file" id="file-input" accept=".json" multiple onchange="uploadFiles(this)">
+            <input type="file" id="file-input" accept=".json" multiple>
         </label>
-        <button id="btn-download" onclick="downloadFile('all')" class="primary" disabled>Download Encrypted</button>
+        <button id="btn-download" class="primary" disabled>Download Encrypted</button>
         <span id="status-msg"></span>
         <a href="https://github.com/sponsors/nulvox" target="_blank" rel="noopener" class="sponsor-btn">Sponsor</a>
     </div>
@@ -30,10 +30,10 @@
     <div id="app">
         <div id="editor-content">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('stats', this)">Player Stats</button>
-                <button class="tab" onclick="switchTab('settings', this)">Settings</button>
-                <button class="tab" onclick="switchTab('inventory', this)">Inventory</button>
-                <button class="tab" onclick="switchTab('raw', this)">Raw JSON</button>
+                <button class="tab active" data-tab="stats">Player Stats</button>
+                <button class="tab" data-tab="settings">Settings</button>
+                <button class="tab" data-tab="inventory">Inventory</button>
+                <button class="tab" data-tab="raw">Raw JSON</button>
             </div>
 
             <div id="tab-stats" class="tab-content active">
@@ -321,7 +321,7 @@
                 <div class="card">
                     <h2>Sleds</h2>
                     <div id="sleds-list" class="item-list"></div>
-                    <button onclick="addSled()" class="add-btn">+ Add Sled</button>
+                    <button id="btn-add-sled" class="add-btn">+ Add Sled</button>
                 </div>
                 <div class="card">
                     <h2>Buildables</h2>
@@ -366,7 +366,7 @@
                     <h2>Settings JSON</h2>
                     <textarea id="raw-settings" rows="15" spellcheck="false"></textarea>
                 </div>
-                <button onclick="applyRawJson()" class="primary">Apply JSON Changes</button>
+                <button id="btn-apply-raw" class="primary">Apply JSON Changes</button>
             </div>
         </div>
 
