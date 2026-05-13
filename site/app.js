@@ -346,19 +346,25 @@ async function handleFiles(files) {
     for (const file of files) {
         try {
             const text = await file.text();
+            console.log('[sleditor] File:', file.name, 'length:', text.length, 'first 20 chars:', text.substring(0, 20));
             const data = await decryptSave(text);
+            console.log('[sleditor] Decrypted keys:', Object.keys(data).slice(0, 8));
             if ('_pointsCurrent' in data) {
                 saveData.stats = data;
                 loadedFilenames.stats = file.name;
+                console.log('[sleditor] Classified as stats');
             } else if ('_masterVolume' in data || 'playerRegion' in data) {
                 saveData.settings = data;
                 loadedFilenames.settings = file.name;
+                console.log('[sleditor] Classified as settings');
             } else {
                 saveData.stats = data;
                 loadedFilenames.stats = file.name;
+                console.log('[sleditor] Classified as stats (fallback)');
             }
             count++;
         } catch (e) {
+            console.error('[sleditor] Decrypt failed:', e);
             setStatus('Failed to decrypt ' + file.name + ': ' + e.message, 'err');
             return;
         }
@@ -369,6 +375,7 @@ async function handleFiles(files) {
         renderInventory();
         updateRawJson();
         validateCheckpoints();
+        console.log('[sleditor] Populated', document.querySelectorAll('[data-path]').length, 'fields');
         setStatus('Loaded ' + count + ' file(s)', 'ok');
     }
 }
