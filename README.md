@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="site/sledit.webp" alt="Sleditor mascot" width="120">
+</p>
+
 # Sleditor
 
 A browser-based save editor for [Sledding Game](https://store.steampowered.com/app/3438850/Sledding_Game/) (Steam).

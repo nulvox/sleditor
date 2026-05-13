@@ -110,8 +110,82 @@ function populateFields() {
             else val = input.value;
             setNestedValue(saveData, input.dataset.path, val);
             updateRawJson();
+            if (POINT_PATHS.includes(input.dataset.path)) validateCheckpoints();
         };
     });
+}
+
+// --- Checkpoints (point balance validation) ---
+
+const POINT_PATHS = [
+    'stats._pointsCurrent', 'stats._heldPoints',
+    'stats._pointsEarnedLifetime', 'stats._pointsSpentLifetime',
+    'stats._pointsGambledLifetime', 'stats._pointsLostLifetime',
+    'stats._pointsWonGambledLifetime'
+];
+
+function getPointField(path) {
+    return document.querySelector('[data-path="' + path + '"]');
+}
+
+function clearCheckpoints() {
+    document.querySelectorAll('.checkpoint-warn').forEach(el => el.classList.remove('checkpoint-warn'));
+    document.querySelectorAll('.checkpoint-hint').forEach(el => el.remove());
+}
+
+function addHint(input, msg) {
+    const field = input.closest('.field');
+    if (!field) return;
+    field.classList.add('checkpoint-warn');
+    const hint = document.createElement('div');
+    hint.className = 'checkpoint-hint';
+    hint.textContent = msg;
+    field.appendChild(hint);
+}
+
+function validateCheckpoints() {
+    clearCheckpoints();
+    if (!saveData.stats) return;
+    const s = saveData.stats;
+
+    const current = s._pointsCurrent || 0;
+    const held = s._heldPoints || 0;
+    const earned = s._pointsEarnedLifetime || 0;
+    const spent = s._pointsSpentLifetime || 0;
+    const gambled = s._pointsGambledLifetime || 0;
+    const lost = s._pointsLostLifetime || 0;
+    const won = s._pointsWonGambledLifetime || 0;
+
+    // Balance check: earned - spent - lost + won should equal current + held
+    const expectedBalance = earned - spent - lost + won;
+    const actualBalance = current + held;
+    if (expectedBalance !== actualBalance) {
+        const diff = expectedBalance - actualBalance;
+        const absDiff = Math.abs(diff);
+        if (diff > 0) {
+            addHint(getPointField('stats._pointsCurrent'),
+                'Balance off by ' + absDiff + '. Increase Current by ' + absDiff + ', or decrease Earned by ' + absDiff);
+        } else {
+            addHint(getPointField('stats._pointsCurrent'),
+                'Balance off by ' + absDiff + '. Decrease Current by ' + absDiff + ', or increase Earned by ' + absDiff);
+        }
+        addHint(getPointField('stats._pointsEarnedLifetime'),
+            'Expected: earned - spent - lost + won = current + held (' + expectedBalance + ' vs ' + actualBalance + ')');
+    }
+
+    // Gambling check: lost should not exceed gambled
+    if (lost > gambled) {
+        addHint(getPointField('stats._pointsLostLifetime'),
+            'Lost (' + lost + ') exceeds Gambled (' + gambled + '). Increase Gambled by ' + (lost - gambled));
+        addHint(getPointField('stats._pointsGambledLifetime'),
+            'Gambled should be >= Lost. Increase by ' + (lost - gambled));
+    }
+
+    // Spent should not exceed earned
+    if (spent > earned) {
+        addHint(getPointField('stats._pointsSpentLifetime'),
+            'Spent (' + spent + ') exceeds Earned (' + earned + '). Increase Earned by ' + (spent - earned));
+    }
 }
 
 // --- Inventory rendering ---
@@ -261,6 +335,7 @@ function applyRawJson() {
     }
     populateFields();
     renderInventory();
+    validateCheckpoints();
     setStatus('JSON applied', 'ok');
 }
 
@@ -293,6 +368,7 @@ async function handleFiles(files) {
         populateFields();
         renderInventory();
         updateRawJson();
+        validateCheckpoints();
         setStatus('Loaded ' + count + ' file(s)', 'ok');
     }
 }

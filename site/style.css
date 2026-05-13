@@ -28,6 +28,14 @@ header {
     text-align: center;
 }
 
+.header-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 0.5em;
+}
+
 header h1 {
     font-size: 1.8em;
     color: var(--snow);
@@ -186,6 +194,20 @@ button.primary:disabled { background: var(--surface2); color: var(--text-dim); b
 }
 
 .field small { font-size: 0.75em; color: var(--text-dim); }
+
+.field.checkpoint-warn {
+    border: 2px solid var(--danger);
+    border-radius: 6px;
+    padding: 0.5em;
+    background: rgba(239, 83, 80, 0.08);
+}
+
+.field .checkpoint-hint {
+    font-size: 0.75em;
+    color: var(--danger);
+    margin-top: 0.25em;
+    font-weight: 500;
+}
 
 .field input[type="number"],
 .field input[type="text"] {
