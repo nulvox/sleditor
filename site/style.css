@@ -346,6 +346,29 @@ textarea:focus { outline: none; border-color: var(--accent); }
     font-size: 0.95em;
 }
 
+footer {
+    max-width: 1000px;
+    margin: 2em auto 0;
+    padding: 1.2em 2em;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+    font-size: 0.8em;
+    color: var(--text-dim);
+    text-align: center;
+}
+
+footer a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
 @media (max-width: 600px) {
     .field-grid { grid-template-columns: 1fr; }
     .toolbar { padding: 0.8em 1em; }
