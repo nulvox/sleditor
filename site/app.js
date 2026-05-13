@@ -166,15 +166,8 @@ function validateCheckpoints() {
     const expectedBalance = earned - spent - lost + won;
     const actualBalance = current + held;
     if (expectedBalance !== actualBalance) {
-        const diff = expectedBalance - actualBalance;
-        const absDiff = Math.abs(diff);
-        if (diff > 0) {
-            addHint(getPointField('stats._pointsCurrent'),
-                'Balance off by ' + absDiff + '. Increase Current by ' + absDiff + ', or decrease Earned by ' + absDiff);
-        } else {
-            addHint(getPointField('stats._pointsCurrent'),
-                'Balance off by ' + absDiff + '. Decrease Current by ' + absDiff + ', or increase Earned by ' + absDiff);
-        }
+        addHint(getPointField('stats._pointsCurrent'),
+            'Set Current Points to ' + (expectedBalance - held) + ', or set Earned to ' + (actualBalance + spent + lost - won));
         addHint(getPointField('stats._pointsEarnedLifetime'),
             'Expected: earned - spent - lost + won = current + held (' + expectedBalance + ' vs ' + actualBalance + ')');
     }
@@ -182,15 +175,15 @@ function validateCheckpoints() {
     // Gambling check: lost should not exceed gambled
     if (lost > gambled) {
         addHint(getPointField('stats._pointsLostLifetime'),
-            'Lost (' + lost + ') exceeds Gambled (' + gambled + '). Increase Gambled by ' + (lost - gambled));
+            'Set Lost to ' + gambled + ', or set Gambled to ' + lost);
         addHint(getPointField('stats._pointsGambledLifetime'),
-            'Gambled should be >= Lost. Increase by ' + (lost - gambled));
+            'Set Gambled to ' + lost + ', or set Lost to ' + gambled);
     }
 
     // Spent should not exceed earned
     if (spent > earned) {
         addHint(getPointField('stats._pointsSpentLifetime'),
-            'Spent (' + spent + ') exceeds Earned (' + earned + '). Increase Earned by ' + (spent - earned));
+            'Set Spent to ' + earned + ', or set Earned to ' + spent);
     }
 }
 
