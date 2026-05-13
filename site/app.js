@@ -1,3 +1,9 @@
+// Catch any JS error and show it visibly on the page
+window.onerror = function(msg, src, line) {
+    var el = document.getElementById('status-msg');
+    if (el) { el.textContent = 'JS Error: ' + msg + ' (line ' + line + ')'; el.className = 'err'; }
+};
+
 const KEY_B64 = '21zTad0Pyq52CEsE26Ym8Mfp/S7lUfEyoJqsVZ6Y27w=';
 let cryptoKey = null;
 let saveData = { stats: null, settings: null };
@@ -463,4 +469,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
     });
+
+    // Verify crypto API is available
+    if (!crypto || !crypto.subtle) {
+        setStatus('Error: Web Crypto API not available. Try a different browser or disable security extensions.', 'err');
+        return;
+    }
+    setStatus('Ready', 'ok');
 });
