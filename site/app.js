@@ -180,10 +180,42 @@ function validateCheckpoints() {
             'Set Gambled to ' + lost + ', or set Lost to ' + gambled);
     }
 
+    // Won should not exceed gambled
+    if (won > gambled) {
+        addHint(getPointField('stats._pointsWonGambledLifetime'),
+            'Set Won to ' + gambled + ', or set Gambled to ' + won);
+        addHint(getPointField('stats._pointsGambledLifetime'),
+            'Set Gambled to ' + won + ', or set Won to ' + gambled);
+    }
+
     // Spent should not exceed earned
     if (spent > earned) {
         addHint(getPointField('stats._pointsSpentLifetime'),
             'Set Spent to ' + earned + ', or set Earned to ' + spent);
+    }
+
+    // Sled points check: sum of individual sled points should equal earned lifetime
+    const sleds = s.sledsData || [];
+    if (sleds.length > 0) {
+        const sledTotal = sleds.reduce((sum, sled) => sum + (sled.points || 0), 0);
+        // Round to avoid floating-point drift
+        const roundedSledTotal = Math.round(sledTotal * 100) / 100;
+        if (roundedSledTotal !== earned) {
+            addHint(getPointField('stats._pointsEarnedLifetime'),
+                'Sled points total ' + roundedSledTotal + '. Set Earned to ' + roundedSledTotal + ', or adjust sled points to sum to ' + earned);
+            // Mark the sleds card in inventory
+            const sledsList = document.getElementById('sleds-list');
+            if (sledsList) {
+                const card = sledsList.closest('.card');
+                if (card) {
+                    card.classList.add('checkpoint-warn');
+                    const hint = document.createElement('div');
+                    hint.className = 'checkpoint-hint';
+                    hint.textContent = 'Sled points sum to ' + roundedSledTotal + ', but Earned is ' + earned + '. These should match.';
+                    card.insertBefore(hint, sledsList);
+                }
+            }
+        }
     }
 }
 
@@ -197,7 +229,7 @@ function renderInventory() {
         makeItemRow(`Sled Type ${sled.type}`, sled.purchased, v => {
             stats.sledsData[i].purchased = v; updateRawJson();
         }, 'Points:', sled.points, v => {
-            stats.sledsData[i].points = v; updateRawJson();
+            stats.sledsData[i].points = v; updateRawJson(); validateCheckpoints();
         })
     );
 
@@ -213,11 +245,11 @@ function renderInventory() {
         })
     );
 
-    const charList = document.getElementById('characters-list');
-    charList.innerHTML = '';
-    if ((stats._characterPurchases || []).length === 0) {
-        charList.innerHTML = '<div class="item-row"><span class="item-label">No character purchases</span></div>';
-    }
+    renderItemList('characters-list', stats._characterPurchases || [], (c, i) =>
+        makeItemRow(`Character Type ${c.type !== undefined ? c.type : i}`, !!c.purchased, v => {
+            stats._characterPurchases[i].purchased = v; updateRawJson();
+        })
+    );
 
     renderSimpleInventory('hats-list', stats.hatsData || []);
     renderSimpleInventory('scarves-list', stats.scarvesData || []);
@@ -304,6 +336,15 @@ function addSled() {
             trinketIdentifierData: { trinketType: 0, trinketSize: 0, trinketRarity: 0 }
         }))
     });
+    renderInventory();
+    updateRawJson();
+}
+
+function addCharacter() {
+    if (!saveData.stats) return;
+    if (!saveData.stats._characterPurchases) saveData.stats._characterPurchases = [];
+    const nextType = saveData.stats._characterPurchases.length;
+    saveData.stats._characterPurchases.push({ type: nextType, purchased: false });
     renderInventory();
     updateRawJson();
 }
@@ -457,6 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('btn-download').addEventListener('click', () => downloadFile('all'));
     document.getElementById('btn-add-sled').addEventListener('click', addSled);
+    document.getElementById('btn-add-character').addEventListener('click', addCharacter);
     document.getElementById('btn-apply-raw').addEventListener('click', applyRawJson);
 
     document.querySelectorAll('[data-tab]').forEach(btn => {
