@@ -1,9 +1,12 @@
 const fs = require("fs");
+const vm = require("vm");
+const path = require("path");
 const crypto = require("crypto");
 const { JSDOM } = require("jsdom");
 
 const HTML = fs.readFileSync(__dirname + "/../site/index.html", "utf-8");
 const APP_JS = fs.readFileSync(__dirname + "/../site/app.js", "utf-8");
+const APP_JS_PATH = path.resolve(__dirname, "../site/app.js");
 const KEY = Buffer.from("21zTad0Pyq52CEsE26Ym8Mfp/S7lUfEyoJqsVZ6Y27w=", "base64");
 
 function encrypt(data) {
@@ -27,8 +30,11 @@ const SAMPLE_STATS = {
   _timesWonRaceWithBaikalSealEquipped: 3,
   _timesJumpedOnTrampolineWithDefaultFrogEquipped: 7,
   _timesKickedByYetiWhileWearingCape: 1,
+  _metersWalked: 15000.5, _metersSledded: 42000.75,
+  _coffeeCupsMade: 12, _coffeeCupsDrank: 8,
   sledsData: [{ purchased: true, type: 1, points: 10.5, equippedDye: 0, equippedTrinkets: [] }],
-  buildablesData: [], toolsData: [], _characterPurchases: [],
+  buildablesData: [], toolsData: [],
+  _characterPurchases: [{ type: 0, purchased: true }, { type: 1, purchased: false }],
   hatsData: [], scarvesData: [], facewearsData: [], sledDyesData: [], trinketsSaveData: [],
 };
 
@@ -83,7 +89,8 @@ function createDOM() {
       };
     },
   });
-  dom.window.eval(APP_JS);
+  const script = new vm.Script(APP_JS, { filename: APP_JS_PATH });
+  script.runInContext(dom.getInternalVMContext());
   dom.window.document.dispatchEvent(new dom.window.Event("DOMContentLoaded"));
   return dom;
 }
@@ -206,7 +213,9 @@ async function testCheckpointsBalanced() {
 
   // earned(1000) - spent(500) - lost(200) + won(100) = 400
   // current(300) + held(100) = 400 — balanced
-  const balanced = { ...SAMPLE_STATS, _pointsCurrent: 300 };
+  // sled points sum to 1000 = earned — balanced
+  const balanced = { ...SAMPLE_STATS, _pointsCurrent: 300,
+    sledsData: [{ purchased: true, type: 1, points: 1000, equippedDye: 0, equippedTrinkets: [] }] };
   const f = new dom.window.Blob([encrypt(balanced)], { type: "text/plain" });
   f.name = "DEMO_PlayerSavedStats.json";
   await handleFiles([f]);
@@ -250,6 +259,140 @@ async function testCheckpointsGambling() {
   dom.window.close();
 }
 
+async function testCheckpointsSledPointsBalanced() {
+  console.log("Checkpoints: sled points matching earned shows no sled warning");
+  const dom = createDOM();
+  const doc = dom.window.document;
+  const handleFiles = dom.window.eval("handleFiles");
+
+  // Two sleds summing to 1000 = earned, overall balance also correct
+  const data = { ...SAMPLE_STATS, _pointsCurrent: 300,
+    sledsData: [
+      { purchased: true, type: 1, points: 600, equippedDye: 0, equippedTrinkets: [] },
+      { purchased: true, type: 2, points: 400, equippedDye: 0, equippedTrinkets: [] },
+    ] };
+  const f = new dom.window.Blob([encrypt(data)], { type: "text/plain" });
+  f.name = "DEMO_PlayerSavedStats.json";
+  await handleFiles([f]);
+
+  assert(doc.querySelectorAll(".checkpoint-warn").length === 0, "no warnings when sleds sum to earned");
+  dom.window.close();
+}
+
+async function testCheckpointsSledPointsMismatch() {
+  console.log("Checkpoints: sled points not matching earned shows warnings");
+  const dom = createDOM();
+  const doc = dom.window.document;
+  const handleFiles = dom.window.eval("handleFiles");
+
+  // Sled points sum to 750, earned is 1000 — mismatch
+  // Overall balance: earned(1000) - spent(500) - lost(200) + won(100) = 400
+  // current(300) + held(100) = 400 — balance ok, but sled total off
+  const data = { ...SAMPLE_STATS, _pointsCurrent: 300,
+    sledsData: [
+      { purchased: true, type: 1, points: 500, equippedDye: 0, equippedTrinkets: [] },
+      { purchased: true, type: 2, points: 250, equippedDye: 0, equippedTrinkets: [] },
+    ] };
+  const f = new dom.window.Blob([encrypt(data)], { type: "text/plain" });
+  f.name = "DEMO_PlayerSavedStats.json";
+  await handleFiles([f]);
+
+  assert(doc.querySelectorAll(".checkpoint-warn").length > 0, "warnings shown for sled mismatch");
+  const hints = [...doc.querySelectorAll(".checkpoint-hint")].map(h => h.textContent);
+  assert(hints.some(h => h.includes("Sled points")), "hint mentions sled points");
+  assert(hints.some(h => h.includes("750")), "hint shows sled total");
+  dom.window.close();
+}
+
+async function testNewStatsFields() {
+  console.log("Load: distance and coffee fields populate");
+  const dom = createDOM();
+  const doc = dom.window.document;
+  const handleFiles = dom.window.eval("handleFiles");
+
+  const f = new dom.window.Blob([encrypt(SAMPLE_STATS)], { type: "text/plain" });
+  f.name = "DEMO_PlayerSavedStats.json";
+  await handleFiles([f]);
+
+  const checks = [
+    ["stats._metersWalked", "15000.5"],
+    ["stats._metersSledded", "42000.75"],
+    ["stats._coffeeCupsMade", "12"],
+    ["stats._coffeeCupsDrank", "8"],
+  ];
+  for (const [path, expected] of checks) {
+    const input = doc.querySelector('[data-path="' + path + '"]');
+    assert(input && String(input.value) === expected, path + " = " + expected);
+  }
+  dom.window.close();
+}
+
+async function testCheckpointsWonExceedsGambled() {
+  console.log("Checkpoints: won > gambled shows warnings");
+  const dom = createDOM();
+  const doc = dom.window.document;
+  const handleFiles = dom.window.eval("handleFiles");
+
+  // won(500) > gambled(100) — invalid
+  const bad = { ...SAMPLE_STATS, _pointsCurrent: 300, _pointsWonGambledLifetime: 500, _pointsGambledLifetime: 100,
+    sledsData: [{ purchased: true, type: 1, points: 1000, equippedDye: 0, equippedTrinkets: [] }] };
+  const f = new dom.window.Blob([encrypt(bad)], { type: "text/plain" });
+  f.name = "DEMO_PlayerSavedStats.json";
+  await handleFiles([f]);
+
+  const hints = [...doc.querySelectorAll(".checkpoint-hint")].map(h => h.textContent);
+  assert(hints.some(h => h.includes("Set Won to 100") || h.includes("Set Gambled to 500")), "won > gambled hint suggests fix");
+  dom.window.close();
+}
+
+async function testCharacterPurchasesRendered() {
+  console.log("Inventory: character purchases render with toggle");
+  const dom = createDOM();
+  const doc = dom.window.document;
+  const handleFiles = dom.window.eval("handleFiles");
+
+  const f = new dom.window.Blob([encrypt(SAMPLE_STATS)], { type: "text/plain" });
+  f.name = "DEMO_PlayerSavedStats.json";
+  await handleFiles([f]);
+
+  const charList = doc.getElementById("characters-list");
+  const rows = charList.querySelectorAll(".item-row");
+  assert(rows.length === 2, "2 character rows rendered");
+
+  const checkboxes = charList.querySelectorAll('input[type="checkbox"]');
+  assert(checkboxes.length === 2, "2 character checkboxes");
+  assert(checkboxes[0].checked === true, "character 0 is purchased");
+  assert(checkboxes[1].checked === false, "character 1 is not purchased");
+  dom.window.close();
+}
+
+async function testAddCharacter() {
+  console.log("Inventory: add character button creates entry");
+  const dom = createDOM();
+  const doc = dom.window.document;
+  const handleFiles = dom.window.eval("handleFiles");
+
+  const data = { ...SAMPLE_STATS, _characterPurchases: [] };
+  const f = new dom.window.Blob([encrypt(data)], { type: "text/plain" });
+  f.name = "DEMO_PlayerSavedStats.json";
+  await handleFiles([f]);
+
+  const charList = doc.getElementById("characters-list");
+  assert(charList.querySelectorAll(".item-row").length === 1, "shows None initially");
+
+  doc.getElementById("btn-add-character").click();
+
+  const rows = charList.querySelectorAll(".item-row");
+  assert(rows.length === 1, "1 character row after add");
+  const cb = charList.querySelector('input[type="checkbox"]');
+  assert(cb && cb.checked === false, "new character not purchased");
+
+  const raw = JSON.parse(doc.getElementById("raw-stats").value);
+  assert(raw._characterPurchases.length === 1, "raw JSON has 1 character");
+  assert(raw._characterPurchases[0].type === 0, "new character type is 0");
+  dom.window.close();
+}
+
 async function testBackupFilenames() {
   console.log("Download: backup filenames are generated correctly");
   const dom = createDOM();
@@ -288,6 +431,12 @@ async function testTabSwitching() {
     testCheckpointsBalanced,
     testCheckpointsUnbalanced,
     testCheckpointsGambling,
+    testCheckpointsSledPointsBalanced,
+    testCheckpointsSledPointsMismatch,
+    testNewStatsFields,
+    testCheckpointsWonExceedsGambled,
+    testCharacterPurchasesRendered,
+    testAddCharacter,
     testBackupFilenames,
     testTabSwitching,
   ];
