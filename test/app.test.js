@@ -330,7 +330,7 @@ async function testPlayerStatsRendered() {
   assert(labels.some(l => l.textContent === "Points Spent"), "statType 15 labeled");
   assert(labels.some(l => l.textContent === "Total Distance Moved"), "statType 12 labeled");
   assert(labels.some(l => l.textContent === "Trinket Packs Opened"), "statType 3 labeled");
-  assert(labels.some(l => l.textContent === "Unknown 11"), "statType 11 labeled");
+  assert(labels.some(l => l.textContent === "Chair Lift Rides w/ Player"), "statType 11 labeled");
 
   // Values are populated
   const inputs = list.querySelectorAll('input[type="number"]');
