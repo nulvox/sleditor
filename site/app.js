@@ -233,7 +233,7 @@ const STAT_TYPE_NAMES = {
     8: 'Unknown 8',
     9: 'Chair Lift Loops',
     10: 'Distance on Chair Lift',
-    11: 'Unknown 11',
+    11: 'Chair Lift Rides w/ Player',
     12: 'Total Distance Moved',
     13: 'Time Sitting/Riding',
     14: 'Points Earned',
@@ -243,11 +243,11 @@ const STAT_TYPE_NAMES = {
     18: 'Most Expensive Fish Sold',
     19: 'Unknown 19',
     20: 'Unknown 20',
-    21: 'Unknown 21',
-    22: 'Unknown 22',
+    21: 'Players Hit with Sled',
+    22: 'Players Hit with Snowballs',
     23: 'Snowballs Thrown',
-    24: 'Unknown 24',
-    25: 'Unknown 25',
+    24: 'Hit by Snowballs',
+    25: 'Furthest Snowball Hit',
     26: 'Unknown 26',
     27: 'Unknown 27',
     28: 'Marshmallows Burned',
@@ -260,7 +260,7 @@ const STAT_TYPE_NAMES = {
     35: 'Unknown 35',
     36: 'Beanbags Thrown',
     37: 'Sled Distance/Time',
-    38: 'Time Sitting w/ Someone',
+    38: 'Time on Lift w/ Player',
 };
 
 function renderPlayerStats(elementId, items) {
