@@ -219,6 +219,93 @@ function validateCheckpoints() {
     }
 }
 
+// --- Player stats (achievement/activity counters) ---
+
+const STAT_TYPE_NAMES = {
+    0: 'Times Emoted',
+    1: 'Objects Built',
+    2: 'Trinket Packs Opened',
+    3: 'Fish Caught',
+    4: 'Shiny Fish Caught',
+    5: 'Targets Hit',
+    6: 'Snowmen Made',
+    7: 'Bowling Pins Hit',
+    8: 'Longest Time Spent Sitting',
+    9: 'Chair Lifts Taken w/ 2+ People',
+    10: 'Distance Travelled on Chair Lift',
+    11: 'Distance Walked',
+    12: 'Distance Sled',
+    13: 'Idle Time',
+    14: 'Points Earned',
+    15: 'Points Spent',
+    16: 'Points Lost',
+    17: 'Points Won',
+    18: 'Most Expensive Fish Sold',
+    19: 'Times Pushed Over',
+    20: 'Players Pushed',
+    21: 'Players Hit with Sled',
+    22: 'Players Hit with Snowballs',
+    23: 'Snowballs Thrown',
+    24: 'Hit by Snowballs',
+    25: 'Furthest Snowball Hit',
+    26: 'Marshmallows Burned',
+    27: 'Smores Made',
+    28: 'Bites Taken',
+    29: 'Liquid Consumed',
+    30: 'Vending Machines Used',
+    31: 'Food/Drink Consumed',
+    32: 'Darts Thrown',
+    33: 'Beanbags Thrown',
+    34: 'Distance Ragdolled',
+    35: 'Unknown 35',
+    36: 'Unknown 36',
+    37: 'Time in Air',
+    38: 'Time Sitting with Someone on Bench',
+};
+
+function renderPlayerStats(elementId, items) {
+    const list = document.getElementById(elementId);
+    list.innerHTML = '';
+    if (items.length === 0) {
+        list.innerHTML = '<div class="item-row"><span class="item-label">None</span></div>';
+        return;
+    }
+    items.forEach((stat, i) => {
+        const row = document.createElement('div');
+        row.className = 'item-row';
+
+        const label = document.createElement('span');
+        label.className = 'item-label';
+        const name = STAT_TYPE_NAMES[stat.statType] || ('Stat Type ' + stat.statType);
+        label.textContent = name;
+        row.appendChild(label);
+
+        const isFloat = stat.statUnit === 1;
+
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.step = isFloat ? '0.01' : '1';
+        inp.value = isFloat ? stat.statAsFloat : stat.statAsInt;
+        inp.onchange = () => {
+            const v = parseFloat(inp.value) || 0;
+            if (isFloat) {
+                saveData.stats.playerStats[i].statAsFloat = v;
+            } else {
+                saveData.stats.playerStats[i].statAsInt = v;
+            }
+            updateRawJson();
+        };
+        row.appendChild(inp);
+
+        const unit = document.createElement('span');
+        unit.className = 'item-label';
+        unit.textContent = isFloat ? '(float)' : '(int)';
+        row.appendChild(unit);
+
+        list.appendChild(row);
+    });
+}
+
 // --- Inventory rendering ---
 
 function renderInventory() {
@@ -246,10 +333,12 @@ function renderInventory() {
     );
 
     renderItemList('characters-list', stats._characterPurchases || [], (c, i) =>
-        makeItemRow(`Character Type ${c.type !== undefined ? c.type : i}`, !!c.purchased, v => {
+        makeItemRow(`Character ${c.character !== undefined ? c.character : i}`, !!c.purchased, v => {
             stats._characterPurchases[i].purchased = v; updateRawJson();
         })
     );
+
+    renderPlayerStats('player-stats-list', stats.playerStats || []);
 
     renderSimpleInventory('hats-list', stats.hatsData || []);
     renderSimpleInventory('scarves-list', stats.scarvesData || []);
@@ -343,8 +432,8 @@ function addSled() {
 function addCharacter() {
     if (!saveData.stats) return;
     if (!saveData.stats._characterPurchases) saveData.stats._characterPurchases = [];
-    const nextType = saveData.stats._characterPurchases.length;
-    saveData.stats._characterPurchases.push({ type: nextType, purchased: false });
+    const nextChar = saveData.stats._characterPurchases.length + 1;
+    saveData.stats._characterPurchases.push({ purchased: false, character: nextChar });
     renderInventory();
     updateRawJson();
 }

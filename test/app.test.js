@@ -30,12 +30,18 @@ const SAMPLE_STATS = {
   _timesWonRaceWithBaikalSealEquipped: 3,
   _timesJumpedOnTrampolineWithDefaultFrogEquipped: 7,
   _timesKickedByYetiWhileWearingCape: 1,
-  _metersWalked: 15000.5, _metersSledded: 42000.75,
-  _coffeeCupsMade: 12, _coffeeCupsDrank: 8,
   sledsData: [{ purchased: true, type: 1, points: 10.5, equippedDye: 0, equippedTrinkets: [] }],
   buildablesData: [], toolsData: [],
-  _characterPurchases: [{ type: 0, purchased: true }, { type: 1, purchased: false }],
+  _characterPurchases: [{ purchased: true, character: 1 }, { purchased: false, character: 2 }],
   hatsData: [], scarvesData: [], facewearsData: [], sledDyesData: [], trinketsSaveData: [],
+  _fishCaughtList: [], _fishCaughtThisSession: [],
+  playerStats: [
+    { statType: 14, statUnit: 0, statAsFloat: 0, statAsInt: 1000 },
+    { statType: 15, statUnit: 0, statAsFloat: 0, statAsInt: 500 },
+    { statType: 12, statUnit: 1, statAsFloat: 15000.5, statAsInt: 0 },
+    { statType: 3, statUnit: 0, statAsFloat: 0, statAsInt: 42 },
+    { statType: 11, statUnit: 0, statAsFloat: 0, statAsInt: 500 },
+  ],
 };
 
 const SAMPLE_SETTINGS = {
@@ -304,8 +310,8 @@ async function testCheckpointsSledPointsMismatch() {
   dom.window.close();
 }
 
-async function testNewStatsFields() {
-  console.log("Load: distance and coffee fields populate");
+async function testPlayerStatsRendered() {
+  console.log("Load: playerStats entries render as editable rows");
   const dom = createDOM();
   const doc = dom.window.document;
   const handleFiles = dom.window.eval("handleFiles");
@@ -314,16 +320,29 @@ async function testNewStatsFields() {
   f.name = "DEMO_PlayerSavedStats.json";
   await handleFiles([f]);
 
-  const checks = [
-    ["stats._metersWalked", "15000.5"],
-    ["stats._metersSledded", "42000.75"],
-    ["stats._coffeeCupsMade", "12"],
-    ["stats._coffeeCupsDrank", "8"],
-  ];
-  for (const [path, expected] of checks) {
-    const input = doc.querySelector('[data-path="' + path + '"]');
-    assert(input && String(input.value) === expected, path + " = " + expected);
-  }
+  const list = doc.getElementById("player-stats-list");
+  const rows = list.querySelectorAll(".item-row");
+  assert(rows.length === 5, "5 playerStats rows rendered");
+
+  // Known stat types get labels
+  const labels = [...list.querySelectorAll(".item-label")];
+  assert(labels.some(l => l.textContent === "Points Earned"), "statType 14 labeled");
+  assert(labels.some(l => l.textContent === "Points Spent"), "statType 15 labeled");
+  assert(labels.some(l => l.textContent === "Distance Sled"), "statType 12 labeled");
+  assert(labels.some(l => l.textContent === "Fish Caught"), "statType 3 labeled");
+  assert(labels.some(l => l.textContent === "Distance Walked"), "statType 11 labeled");
+
+  // Values are populated
+  const inputs = list.querySelectorAll('input[type="number"]');
+  assert(inputs[0].value === "1000", "statType 14 int value");
+  assert(inputs[2].value === "15000.5", "statType 12 float value");
+
+  // Edit a value and verify raw JSON updates
+  inputs[2].value = "20000";
+  inputs[2].onchange();
+  const raw = JSON.parse(doc.getElementById("raw-stats").value);
+  assert(raw.playerStats[2].statAsFloat === 20000, "edit persists to raw JSON");
+
   dom.window.close();
 }
 
@@ -389,7 +408,7 @@ async function testAddCharacter() {
 
   const raw = JSON.parse(doc.getElementById("raw-stats").value);
   assert(raw._characterPurchases.length === 1, "raw JSON has 1 character");
-  assert(raw._characterPurchases[0].type === 0, "new character type is 0");
+  assert(raw._characterPurchases[0].character === 1, "new character ID is 1");
   dom.window.close();
 }
 
@@ -433,7 +452,7 @@ async function testTabSwitching() {
     testCheckpointsGambling,
     testCheckpointsSledPointsBalanced,
     testCheckpointsSledPointsMismatch,
-    testNewStatsFields,
+    testPlayerStatsRendered,
     testCheckpointsWonExceedsGambled,
     testCharacterPurchasesRendered,
     testAddCharacter,
