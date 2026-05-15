@@ -4,3 +4,6 @@ node_modules/
 
 # Saves
 DEMO_*
+
+# Coverage
+coverage/
