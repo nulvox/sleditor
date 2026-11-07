@@ -8,9 +8,11 @@ A browser-based save editor for [Sledding Game](https://store.steampowered.com/a
 
 Decrypts, lets you edit, and re-encrypts your save files. Runs **entirely in your browser** — no data is sent to any server.
 
+**Live editor:** [https://nulvox.github.io/sleditor/](https://nulvox.github.io/sleditor/)
+
 ## Usage
 
-1. Open the editor (hosted via GitHub Pages, or locally)
+1. Open the [live editor](https://nulvox.github.io/sleditor/) (or run it locally)
 2. Open or drag-and-drop your save file(s)
 3. Edit values using the form fields or the Raw JSON tab
 4. Click **Download Encrypted** to get the modified save file(s)
